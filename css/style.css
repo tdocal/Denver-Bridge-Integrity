@@ -17,3 +17,41 @@ html, body, #viewDiv {
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.75);
     transform: translate3d(-50%, -125%, 0);
 }
+
+.esri-ui-corner .esri-component.esri-widget--panel {
+    width: 185px;
+    height: 195px;
+    padding-bottom: 0px;
+}
+
+.esri-widget--panel {
+    line-height: 0px;
+}
+
+.esri-legend__service {
+    padding-bottom: 0px;
+    padding-top: 20px;
+}
+
+.esri-legend__layer-table {
+    margin-bottom: 0px;
+}
+
+.esri-view-width-xlarge .esri-popup__main-container {
+    width: 250px;
+}
+
+.esri-popup__content {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.esri-popup__header-title {
+    padding-right: 0px;
+    padding-left: 10px;
+}
+
+.esri-popup__header-buttons .esri-popup__button {
+    padding-right: 2px;
+    padding-left: 4px;
+}
