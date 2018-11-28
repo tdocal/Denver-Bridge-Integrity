@@ -15,17 +15,42 @@ html, body, #viewDiv {
     margin: 0 auto;
     padding: 8px;
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.75);
-    transform: translate3d(-50%, -125%, 0);
+    transform: translate3d(-50%, -75%, 0);
 }
 
 .esri-ui-corner .esri-component.esri-widget--panel {
-    width: 185px;
-    height: 195px;
+    width: 195px;
+    height: 200px;
     padding-bottom: 0px;
 }
 
-.esri-widget--panel {
+.esri-widget {
+    font-family: "Open Sans";
+    color: #d9d9d9;
+    background-color: #424242
+}
+
+.esri-widget--button {
+    background-color: #424242;
+    color: #d9d9d9;
+}
+
+.esri-widget--button:hover {
+    background-color: #3470bf;
+    color: #d9d9d9;
+}
+
+.esri-widget--button:active {
+    background-color: #d9d9d9;
+    color: #424242;
+}
+
+.esri-widget--panel, .esri-widget__heading {
+    font-family: "Open Sans";
     line-height: 0px;
+    background-color: #424242;
+    color: #d9d9d9;
+    letter-spacing: 0.3px;
 }
 
 .esri-legend__service {
@@ -37,8 +62,29 @@ html, body, #viewDiv {
     margin-bottom: 0px;
 }
 
+.esri-popup__main-container {
+    color: #d9d9d9;
+    background-color: #424242;
+    
+}
+
 .esri-view-width-xlarge .esri-popup__main-container {
-    width: 250px;
+    width: 275px;
+    background-color: #424242;
+    color: #d9d9d9;
+    max-height: 300px;
+}
+
+.esri-popup__feature-menu {
+    background-color: #d9d9d9;
+}
+
+.esri-popup__button, .esri-widget__table {
+    color: #d9d9d9;
+}
+
+.esri-popup__button:hover, .esri-popup__header-buttons .esri-popup__button:hover {
+    color: #5B8FD2;
 }
 
 .esri-popup__content {
@@ -54,4 +100,31 @@ html, body, #viewDiv {
 .esri-popup__header-buttons .esri-popup__button {
     padding-right: 2px;
     padding-left: 4px;
+    background-color: #424242;
+    color: #d9d9d9;
+}
+
+.esri-popup__feature-menu {
+    background-color: #424242;
+}
+
+.esri-basemap-gallery__item-title {
+    color: #d9d9d9;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+}
+
+.esri-basemap-gallery__item:hover {
+    background-color: #d9d9d9;
+    color: #424242;
+}
+
+.esri-scale-bar__label {
+    color: #d9d9d9;
+    text-shadow: 0 0 1px #424242, 0 0 1px #424242, 0 0 1px #424242;
+}
+
+.esri-scale-bar__line, .esri-scale-bar__line--top:before, .esri-scale-bar__line--top:after, .esri-scale-bar__line--bottom:before, .esri-scale-bar__line--bottom:after {
+    background-color: #d9d9d9;
+    color: #424242;
 }

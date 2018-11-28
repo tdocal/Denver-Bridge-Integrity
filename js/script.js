@@ -19,8 +19,9 @@ require([
     BasemapGallery
 ) {
     
+    /*"streets", "satellite", "hybrid", "terrain", "topo", "gray", "dark-gray", "oceans", "national-geographic", "osm", "dark-gray-vector", "gray-vector", "streets-vector", "topo-vector", "streets-night-vector", "streets-relief-vector", "streets-navigation-vector"*/
     var map = new Map({
-        basemap: "streets-relief-vector"
+        basemap: "streets-night-vector"
     });
     
     var view = new MapView({
@@ -88,10 +89,11 @@ require([
             symbol: {
                 type: "picture-marker",
                 url: "https://static.arcgis.com/images/Symbols/Basic/GreenSphere.png",
+                color: "green",
                 width: "30px",
                 height: "30px"
             },
-            label: "Good"
+            label: "Good >=7"
         }, {
             value: "F",
             symbol: {
@@ -100,56 +102,18 @@ require([
                 width: "30px",
                 height: "30px"
             },
-            label: "Fair"
+            label: "Fair 5-6"
         }, {
             value: "P",
             symbol: {
                 type: "picture-marker",
-                url: "https://static.arcgis.com/images/Symbols/Basic/OrangeSphere.png",
+                url: "https://static.arcgis.com/images/Symbols/Basic/RedSphere.png",
                 width: "30px",
                 height: "30px"
             },
-            label: "Poor"
+            label: "Poor <=4"
         }]
     };
-    
-    var bridgeRenderer = {
-        type: "simple",
-        symbol: {
-            type: "simple-fill",
-            outline: {
-                color: "lightgray",
-                width: 0.5
-            }
-        },
-        label: " ",
-        visualVariables: [{
-            type: "color",
-            valueExpressionTitle: " ",
-            field: "SUFFICIE_1",
-            stops: [{
-                value: 0,
-                color: [158, 154, 200, 0.85]
-            }, {
-                value: 10,
-                color: [255, 127, 0, 0.85]
-            }, {
-                value: 50,
-                color: [255, 255, 51, 0.85]
-            }, {
-                value: 80,
-                color: [0, 255, 0, 0.85]
-            }]
-        }]
-    };
-    
-    var bridgeLayer = new FeatureLayer({
-        url: "https://services.arcgis.com/YseQBnl2jq0lrUV5/arcgis/rest/services/Denver_Bridge_Integrity_Ref/FeatureServer/1",
-        definitionExpression: "DECK_COND_ <> 'N' AND SUPERSTRUC <> 'N' AND SUBSTRUCTU <> 'N'",
-        renderer: bridgeRenderer,
-        legendEnabled: false
-    });
-    map.add(bridgeLayer);
     
     var pointsLayer = new FeatureLayer({
         url: "https://services.arcgis.com/YseQBnl2jq0lrUV5/arcgis/rest/services/Denver_Bridge_Integrity_Ref/FeatureServer/0",
@@ -157,7 +121,8 @@ require([
         renderer: pointRenderer,
         popupTemplate: {
             title: "{BRIDGE_NAM}",
-            content: "Structure ID: {STRUCTURE_NUM}<br>Built in: {YEARBUILT}<br>Bridge Sufficieny Rating: <strong>{SUFFICIE_1}</strong><br>Deck Condition Rating: {DECK_COND_}<br>Superstructure Rating: {SUPERSTRUC}<br>Substructure Rating: {SUBSTRUCTU}<br>Culvert Condition: {CULVERT_CO}<br>Last Inspected: {YEAR_ADT_0}<br>Next Inspection: {YEAR_OF_FU}"
+            content: "Structure ID: {STRUCTURE_NUM}<br>Built in: {YEAR_BUILT}<br>Bridge Sufficieny Rating: <strong>{SUFFICIE_1}</strong><br>Deck Condition Rating: {DECK_COND_}<br>Superstructure Rating: {SUPERSTRUC}<br>Substructure Rating: {SUBSTRUCTU}<br>Culvert Condition: {CULVERT_CO}<br>Last Inspected: {YEAR_ADT_0}<br>Next Inspection: {YEAR_OF_FU}"
+            //content: "{*}"
         }
     });
     map.add(pointsLayer);
@@ -170,4 +135,96 @@ require([
         }]
     });
     view.ui.add(legend, "bottom-right");
+    
+    view.whenLayerView(pointsLayer).then(setupHoverTooltip);
+    
+    function setupHoverTooltip(layerview) {
+        var promise;
+        var highlight;
+
+        var tooltip = createTooltip();
+        view.on("pointer-move", function (event) {
+            if (promise) {
+                promise.cancel();
+            }
+            promise = view.hitTest(event.x, event.y)
+                .then(function (hit) {
+                    promise = null;
+
+                    if (highlight) {
+                        highlight.remove();
+                        highlight = null;
+                    }
+
+                    var results = hit.results.filter(function (result) {
+                            return result.graphic.layer == pointsLayer;
+                        });
+                    if (results.length) {
+                        var graphic = results[0].graphic;
+                        var screenPoint = hit.screenPoint;
+
+                        highlight = layerview.highlight(graphic);
+                        tooltip.show(screenPoint, graphic.getAttribute("BRIDGE_NAM"));
+                    } else {
+                        tooltip.hide();
+                    }
+                });
+        });
+    }
+    
+    function createTooltip() {
+        var tooltip = document.createElement("div");
+        var style = tooltip.style;
+
+        tooltip.setAttribute("role", "tooltip");
+        tooltip.classList.add("tooltip");
+
+        var textElement = document.createElement("div");
+        textElement.classList.add("esri-widget");
+        tooltip.appendChild(textElement);
+
+        view.container.appendChild(tooltip);
+
+        var x = 0;
+        var y = 0;
+        var targetX = 0;
+        var targetY = 0;
+        var visible = false;
+
+        function move() {
+            x += (targetX - x) * 0.1;
+            y += (targetY - y) * 0.1;
+
+            if (Math.abs(targetX) < 1 && Math.abs(targetY) < 1) {
+                x = targetX;
+                y = targetY;
+            } else {
+                requestAnimationFrame(move);
+            }
+
+            style.transform = "translate3d(" + Math.round(x) + "px," + Math.round(y - 50) + "px, 0)";
+        }
+
+        return {
+            show: function (point, text) {
+                if (!visible) {
+                    x = point.x;
+                    y = point.y;
+                }
+
+                targetX = point.x;
+                targetY = point.y;
+                style.opacity = 1;
+                visible = true;
+                textElement.innerHTML = text;
+                
+                move();
+            },
+
+            hide: function () {
+                style.opacity = 0;
+                visible = false;
+            }
+        };
+    }
 });
